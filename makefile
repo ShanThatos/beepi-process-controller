@@ -4,3 +4,7 @@ setup:
 run:
 	python main.py
 
+push:
+	git add .
+	git commit -m "qpush-update"
+	git push
