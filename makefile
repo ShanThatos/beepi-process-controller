@@ -1,4 +1,8 @@
 
+.DEFAULT_GOAL := all
+
+all: setup run
+
 setup:
 	python -m pip install -r requirements.txt
 run:
@@ -6,5 +10,5 @@ run:
 
 push:
 	git add .
-	git commit -m "qpush-update"
+	git commit -m "make-push-update"
 	git push
