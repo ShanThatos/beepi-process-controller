@@ -4,11 +4,12 @@
 all: setup run
 
 setup:
-	python -m pip install -r requirements.txt
+	pip install -r requirements.txt
 run:
 	python main.py
 
 push:
+	pip freeze > requirements.txt
 	git add .
 	git commit -m "make-push-update"
 	git push
