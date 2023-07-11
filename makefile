@@ -4,7 +4,6 @@
 all: setup run
 
 setup:
-	git pull
 	python -m pip install -r requirements.txt
 run:
 	python main.py
