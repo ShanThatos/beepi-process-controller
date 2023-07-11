@@ -23,8 +23,6 @@ def index():
 
 @app.route("/login", methods=["POST"])
 def login():
-    print(request.form)
-    print(os.environ.get("PCR_USERNAME"), os.environ.get("PCR_PASSWORD"))
     if request.form.get("username", "") == os.environ.get("PCR_USERNAME") and request.form.get("password", "") == os.environ.get("PCR_PASSWORD"):
         session["is_admin"] = True
         return redirect("/admin")
