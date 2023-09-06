@@ -83,7 +83,7 @@ def restart():
 
 def start_server():
     # cloudflared tunnel run --url 0.0.0.0:8000 beepi.shanthatos.dev
-    cf_process = Popen(["cloudflared", "tunnel", "run", "--url", "0.0.0.0:8000", "beepi.shanthatos.dev"], shell=True)
+    cf_process = Popen(["cloudflared", "tunnel", "run", "--url", "0.0.0.0:8000", "beepi.shanthatos.dev"])
     atexit.register(lambda: manage.fully_kill_process(cf_process))
     
     # app.run("0.0.0.0", 8000, debug=False, load_dotenv=False, use_reloader=False)
