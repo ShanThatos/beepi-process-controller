@@ -2,7 +2,7 @@ import atexit
 import os
 from functools import cache, wraps
 from subprocess import Popen
-from typing import Callable
+from typing import Callable, Optional
 
 from flask import Flask, abort, redirect, render_template, request, session
 from waitress import serve
@@ -77,14 +77,16 @@ def project_action(project_name: str, action: str):
 def restart():
     for project in manage.get_projects():
         project.stop_if_exists()
-    Popen(ext.RESTART_CMD, shell=True)
+    manage.fully_kill_process(CF_PROCESS)
+    Popen(ext.RESTART_CMD, shell=True, start_new_session=True)
     os._exit(0)
 
+CF_PROCESS: Optional[Popen] = None
 
 def start_server():
-    # cloudflared tunnel run --url 0.0.0.0:8000 beepi.shanthatos.dev
-    cf_process = Popen(["cloudflared", "tunnel", "run", "--url", "0.0.0.0:8000", "beepi.shanthatos.dev"])
-    atexit.register(lambda: manage.fully_kill_process(cf_process))
+    global CF_PROCESS
+    CF_PROCESS = Popen("cloudflared tunnel run --url 0.0.0.0:8000 beepi.shanthatos.dev", shell=True, start_new_session=True)
+    atexit.register(lambda: manage.fully_kill_process(CF_PROCESS))
     
     # app.run("0.0.0.0", 8000, debug=False, load_dotenv=False, use_reloader=False)
     serve(app, listen="0.0.0.0:8000")

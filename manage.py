@@ -14,7 +14,8 @@ projects_dir = Path(str(ext.PROJECTS_DIR)).resolve()
 projects_file = projects_dir.joinpath("_projects.json")
 projects: List["ActiveProject"] = []
 
-def fully_kill_process(process: Popen):
+def fully_kill_process(process: Optional[Popen]):
+    if process is None: return
     for child_process in psutil.Process(process.pid).children(True):
         child_process.kill()
     process.kill()
