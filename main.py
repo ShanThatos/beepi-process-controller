@@ -1,7 +1,7 @@
 import atexit
 import os
 from functools import cache, wraps
-from subprocess import CREATE_NEW_PROCESS_GROUP, DETACHED_PROCESS, Popen
+from subprocess import Popen
 from typing import Callable
 
 from flask import Flask, abort, redirect, render_template, request, session
