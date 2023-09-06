@@ -1,13 +1,10 @@
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := start
 .ONE_SHELL:
 
-all: setup run
-
-setup:
-	pip install -r requirements.txt
-run:
-	python main.py
+start:
+	poetry install
+	poetry run python main.py
 
 push:
 	pip freeze > requirements.txt
