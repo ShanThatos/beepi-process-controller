@@ -14,6 +14,11 @@ projects_dir = Path(str(ext.PROJECTS_DIR)).resolve()
 projects_file = projects_dir.joinpath("_projects.json")
 projects: List["ActiveProject"] = []
 
+def fully_kill_process(process: Popen):
+    for child_process in psutil.Process(process.pid).children(True):
+        child_process.kill()
+    process.kill()
+
 
 class ProjectData(TypedDict):
     name: str
@@ -46,9 +51,7 @@ class ActiveProject:
             process: Optional[Popen] = getattr(self, process_attr)
             if process is None: continue
             if not psutil.pid_exists(process.pid): continue
-            for child_process in psutil.Process(process.pid).children(True):
-                child_process.kill()
-            process.kill()
+            fully_kill_process(process)
             setattr(self, process_attr, None)
 
     def start(self):

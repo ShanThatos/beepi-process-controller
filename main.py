@@ -1,3 +1,4 @@
+import atexit
 import os
 from functools import cache, wraps
 from subprocess import CREATE_NEW_PROCESS_GROUP, DETACHED_PROCESS, Popen
@@ -76,13 +77,14 @@ def project_action(project_name: str, action: str):
 def restart():
     for project in manage.get_projects():
         project.stop_if_exists()
-    Popen("make restart", shell=True, creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP)
+    Popen(ext.RESTART_CMD, shell=True)
     os._exit(0)
 
 
 def start_server():
     # cloudflared tunnel run --url 0.0.0.0:8000 beepi.shanthatos.dev
-    Popen(["cloudflared", "tunnel", "run", "--url", "0.0.0.0:8000", "beepi.shanthatos.dev"])
+    cf_process = Popen(["cloudflared", "tunnel", "run", "--url", "0.0.0.0:8000", "beepi.shanthatos.dev"], shell=True)
+    atexit.register(lambda: manage.fully_kill_process(cf_process))
     
     # app.run("0.0.0.0", 8000, debug=False, load_dotenv=False, use_reloader=False)
     serve(app, listen="0.0.0.0:8000")

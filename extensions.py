@@ -10,3 +10,5 @@ PCR_USERNAME: str = utils.assert_not_none(ENV["PCR_USERNAME"])
 PCR_PASSWORD: str = utils.assert_not_none(ENV["PCR_PASSWORD"])
 
 PROJECTS_DIR: str = utils.assert_not_none(ENV["PROJECTS_DIR"])
+
+RESTART_CMD: str = utils.assert_not_none(ENV["RESTART_CMD"])
