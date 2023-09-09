@@ -4,11 +4,16 @@ import utils
 
 ENV = dotenv_values()
 
-SECRET_KEY: str = utils.assert_not_none(ENV["SECRET_KEY"])
+SECRET_KEY: str = utils.assert_not_none(ENV.get("SECRET_KEY"))
 
-PCR_USERNAME: str = utils.assert_not_none(ENV["PCR_USERNAME"])
-PCR_PASSWORD: str = utils.assert_not_none(ENV["PCR_PASSWORD"])
+PCR_USERNAME: str = utils.assert_not_none(ENV.get("PCR_USERNAME"))
+PCR_PASSWORD: str = utils.assert_not_none(ENV.get("PCR_PASSWORD"))
 
-PROJECTS_DIR: str = utils.assert_not_none(ENV["PROJECTS_DIR"])
+PROJECTS_DIR: str = utils.assert_not_none(ENV.get("PROJECTS_DIR"))
 
-RESTART_CMD: str = utils.assert_not_none(ENV["RESTART_CMD"])
+RESTART_CMD: str = utils.assert_not_none(ENV.get("RESTART_CMD"))
+
+TEMPLATES_AUTO_RELOAD: bool = utils.assert_not_none(ENV.get("TEMPLATES_AUTO_RELOAD", "no")) == "yes"
+
+RUN_CLOUDFARED: bool = utils.assert_not_none(ENV.get("RUN_CLOUDFARED", "no")) == "yes"
+CLOUDFARED_DOMAIN: str = utils.assert_not_none(ENV.get("CLOUDFARED_DOMAIN", "X"))

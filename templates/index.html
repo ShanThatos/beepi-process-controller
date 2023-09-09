@@ -1,4 +1,4 @@
-{% from "project.html" import project_row_header, project_row %}
+{% from "project.html" import project_row_header, project_row, project_edit %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beepi Process Controller</title>
     <script src="https://unpkg.com/htmx.org@1.9.5" integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.2/ace.min.js" integrity="sha512-grCp52F5q+IJVuVwiXiMw+k0kb1b+La0syXiV946onkfBvuI9JBCFVvXZCWAiGvh9yoinMP9Ofchnc7RGwggXw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="/static/tailwind-output.css" rel="stylesheet">
     <script src="/static/main.js"></script>
 </head>
@@ -15,13 +16,33 @@
 <body class="bg-slate-800 w-full min-h-full p-10 text-white">
     <div class="container-lg mx-auto">
         <div class="max-w-5xl mx-auto">
-            <table class="table-auto bg-slate-700 {{ border_css }} border-collapse w-full text-left">
+            <table 
+                id="projects-table"
+                class="table-auto bg-slate-700 {{ border_css }} border-collapse w-full text-left"
+            >
                 <thead>{{ project_row_header() }}</thead>
                 {% for project in projects %}
                     {{ project_row(project) }}
                 {% endfor %}
             </table>
             <div class="mt-5 flex justify-center items-center">
+                <input 
+                    type="text" 
+                    id="short-name-input" 
+                    name="short_name"
+                    class="mx-2 px-3 py-1 rounded-lg bg-gray-600" 
+                    placeholder="New Project ID"
+                >
+                <button 
+                    class="mx-2 px-3 py-1 rounded-lg bg-green-600"
+                    hx-post="/add"
+                    hx-include="#short-name-input[name='short_name']"
+                    hx-target="#projects-table"
+                    hx-swap="beforeend"
+                >
+                    Add
+                </button>
+
                 <a 
                     href="/logout"
                     class="mx-2 px-3 py-1 rounded-lg bg-blue-700"
@@ -36,8 +57,11 @@
                     Restart
                 </button>
             </div>
+            {{ project_edit() }}
         </div>
     </div>
+    <style type="text/css" media="screen">
+    </style>
 </body>
 
 </html>

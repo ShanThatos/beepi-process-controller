@@ -1,9 +1,13 @@
 
-.DEFAULT_GOAL := start
+.DEFAULT_GOAL := all
 .ONE_SHELL:
 
-start:
+all: setup start
+
+setup:
 	poetry install
+
+start:
 	poetry run python main.py
 
 tailwind:

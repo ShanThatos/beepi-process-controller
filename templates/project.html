@@ -1,9 +1,9 @@
 
-{% set polling_rate = "every 1s" %}
+{% set polling_rate = "every 5s" %}
 
 {% set border_css = "border border-slate-600" %}
 {% set header_css = "px-2 py-2" %}
-{% set headers = ["Name", "Folder", "Update Command", "Start Command", "Autostart", "Status", "Options"] %}
+{% set headers = ["Name", "ID", "Update Command", "Start Command", "Autostart", "Status", "Options"] %}
 
 {% macro project_row_header() %}
     <tr>
@@ -15,11 +15,11 @@
 
 
 {% set cell_css = "px-2 py-2 text-gray-300 text-sm" %}
-{% set button_css = "mx-0.5 p-0.5 rounded shadow" %}
-{% set project_attrs = ["name", "folder_name", "update_command", "start_command", "autostart"] %}
+{% set option_button_css = "mx-0.5 p-0.5 rounded shadow" %}
+{% set project_attrs = ["name", "short_name", "update_command", "start_command", "autostart"] %}
 
 {% macro project_row(project) %}
-    {% set project_name = project.data["name"] %}
+    {% set project_name = project.data.get("short_name") %}
     {% set project_row_id = "project-" + project_name %}
     {% set project_output_row_id = "project-output-" + project_name %}
     {% set project_update_output_row_id = "project-update-output-" + project_name %}
@@ -28,7 +28,7 @@
     <tbody id="{{ project_row_id }}">
         <tr>
             {% for attr_name in project_attrs %}
-                <td class="{{ border_css }} {{ cell_css }}">{{ project.data[attr_name] }}</td>
+                <td class="{{ border_css }} {{ cell_css }}">{{ project.data.get(attr_name) }}</td>
             {% endfor %}
             {{ project_status(project) }}
             <td class="{{ border_css }} {{ cell_css }} w-40">
@@ -78,29 +78,33 @@
     {% set status = project.get_status() %}
     <td 
         class="{{ border_css }} {{ cell_css }}"
-        hx-get="/{{ project.data['name'] }}/status"
+        hx-get="/{{ project.data.get('short_name') }}/status"
         hx-trigger="{{ polling_rate }}"
         hx-swap="outerHTML"
     >
-        {% if status == "running" %}
+        {% if status == "invalid" %}
+            <span class="text-red-500">Invalid</span>
+        {% elif status == "missing" %}
+            <span class="text-red-500">Missing</span>
+        {% elif status == "running" %}
             <span class="text-green-500">Running</span>
         {% elif status == "updating" %}
-            <span class="text-orange-400">Updating</span>
+            <span class="text-yellow-400">Updating</span>
         {% elif status == "stopped" %}
-            <span class="text-red-500">Stopped</span>
+            <span class="text-orange-500">Stopped</span>
         {% endif %}
     </td>
 {% endmacro %}
 
 {% macro project_buttons(project) %}
-    {% set project_name = project.data["name"] %}
+    {% set project_name = project.data.get("short_name") %}
     {% set project_row_id = "project-" + project_name %}
     {% set project_output_row_id = "project-output-" + project_name %}
     {% set project_update_output_row_id = "project-update-output-" + project_name %}
     {% set status = project.get_status() %}
 
     {% if status == "running" %}
-        <button class="{{ button_css }} bg-red-500"
+        <button class="{{ option_button_css }} bg-red-500"
             hx-post="/{{ project_name }}/stop"
             hx-target="#{{ project_row_id }}"
             hx-swap="outerHTML"
@@ -109,8 +113,10 @@
                 <path d="M5.25 3A2.25 2.25 0 003 5.25v9.5A2.25 2.25 0 005.25 17h9.5A2.25 2.25 0 0017 14.75v-9.5A2.25 2.25 0 0014.75 3h-9.5z" />
             </svg>
         </button>
-    {% elif status == "stopped" %}
-        <button class="{{ button_css }} bg-green-600"
+    {% endif %}
+
+    {% if status == "stopped" %}
+        <button class="{{ option_button_css }} bg-green-600"
             hx-post="/{{ project_name }}/start"
             hx-target="#{{ project_row_id }}"
             hx-swap="outerHTML"
@@ -119,7 +125,23 @@
                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
             </svg>
         </button>
-        <button class="{{ button_css }} bg-yellow-600"
+    {% endif %}
+
+    {% if status in ("invalid", "missing", "stopped") %}
+        <button class="{{ option_button_css }} bg-cyan-600"
+            hx-post="/{{ project_name }}/edit"
+            hx-target="#project-edit"
+            hx-swap="outerHTML"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
+                <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
+            </svg>
+        </button>
+    {% endif %}
+
+    {% if status in ("missing", "stopped") %}
+        <button class="{{ option_button_css }} bg-yellow-600"
             hx-post="/{{ project_name }}/update"
             hx-target="#{{ project_row_id }}"
             hx-swap="outerHTML"
@@ -132,7 +154,7 @@
 
     {% if status in ("running", "stopped") %}
         <button 
-            class="{{ button_css }} bg-blue-500" 
+            class="{{ option_button_css }} bg-blue-500" 
             onclick="toggleVisibility('{{ project_output_row_id }}')"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -143,7 +165,7 @@
 
     {% if status in ("updating", "stopped") %}
         <button 
-            class="{{ button_css }} bg-orange-600" 
+            class="{{ option_button_css }} bg-orange-600" 
             onclick="toggleVisibility('{{ project_update_output_row_id }}')"
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -153,4 +175,74 @@
         </button>
     {% endif %}
 
+    {% if status == "stopped" %}
+        <button class="{{ option_button_css }} bg-yellow-600"
+            hx-post="/{{ project_name }}/delete"
+            hx-target="#{{ project_row_id }}"
+            hx-swap="outerHTML"
+            hx-confirm="Are you sure you want to delete the project folder?"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    {% endif %}
+
+    {% if status in ("invalid", "missing", "stopped") %}
+        <button class="{{ option_button_css }} bg-red-500"
+            hx-post="/{{ project_name }}/remove"
+            hx-target="#{{ project_row_id }}"
+            hx-swap="outerHTML"
+            hx-confirm="Are you sure you want to remove the project?"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    {% endif %}
+
 {% endmacro %}
+
+
+{% macro project_edit(project=None) %}
+    <div id="project-edit" class="mt-5">
+        {% if project %}
+            <div class="flex">
+                <div class="mx-16 p-2 flex-auto">
+                    <div id="project-editor"
+                        class="w-full h-80 rounded-xl border-4 border-gray-500 shadow-xl text-base"
+                    >{{ project.as_json() }}</div>
+                    <textarea id="project-edit-textarea" name="project-edit" class="hidden">{{ project.as_json() }}</textarea>
+                </div>
+                <script>
+                    var editor = ace.edit("project-editor");
+                    editor.getSession().setMode("ace/mode/json");
+                    editor.setTheme("ace/theme/twilight");
+                    editor.getSession().on("change", () => {
+                        document.getElementById("project-edit-textarea").innerHTML = editor.getSession().getValue();
+                    });
+                </script>
+            </div>
+            <div class="mt-2 text-center">
+                <span id="project-edit-response" class="text-red-500"></span>
+            </div>
+            <div class="mt-2 flex justify-center items-center">
+                <button 
+                    class="mx-2 px-5 py-1 rounded-lg bg-blue-600"
+                    onclick="document.getElementById('project-edit').innerHTML = ''"
+                >
+                    Close Editor
+                </button>
+                <button 
+                    class="mx-2 px-5 py-1 rounded-lg bg-green-600"
+                    hx-post="/{{ project.data.get('short_name') }}/save"
+                    hx-include="#project-edit-textarea[name=project-edit]"
+                    hx-target="#project-edit-response"
+                >
+                    Save
+                </button>
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
