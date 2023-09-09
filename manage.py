@@ -1,6 +1,6 @@
 import atexit
 import json
-import shutil
+import os
 from collections import deque
 from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
@@ -88,7 +88,7 @@ class ActiveProject:
         self.update_process, self.update_capture = self.__start_popen(command, cwd)
 
     def __start_popen(self, command: str, cwd: Path) -> Tuple[Popen, "PopenCapture"]:
-        process = Popen(command, cwd=cwd, bufsize=1, stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, universal_newlines=True, env=self.data.get("environment", {}))
+        process = Popen(command, cwd=cwd, bufsize=1, stdin=PIPE, stdout=PIPE, stderr=STDOUT, shell=True, universal_newlines=True, env=os.environ | self.data.get("environment", {}))
         capture = PopenCapture(process, self.data.get("capture_limit"))
         return process, capture
 

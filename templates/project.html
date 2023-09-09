@@ -43,10 +43,11 @@
         </tr>
         <tr id="{{ project_output_row_id }}" class="hidden">
             <td class="{{ border_css }} {{ cell_css }}" colspan="{{ headers|length }}">
-                <div class="w-full flex justify-center items-center">
+                <span class="mx-3 font-bold text-base text-blue-200">{{ project.data.get("name", "") }} Output Log</span>
+                <div class="mt-1 w-full flex justify-center items-center">
                     <textarea class="m-1 p-2 flex-auto 
                         rounded-lg border-2 border-gray-800 
-                        bg-gray-600
+                        bg-blue-950
                         text-sm text-gray-300 font-mono leading-4" 
                         rows="10"
                         readonly
@@ -58,10 +59,11 @@
         </tr>
         <tr id="{{ project_update_output_row_id }}" class="hidden">
             <td class="{{ border_css }} {{ cell_css }}" colspan="{{ headers|length }}">
-                <div class="w-full flex justify-center items-center">
+                <span class="mx-3 font-bold text-base text-orange-200">{{ project.data.get("name", "") }} Update Log</span>
+                <div class="mt-1 w-full flex justify-center items-center">
                     <textarea class="m-1 p-2 flex-auto 
                         rounded-lg border-2 border-gray-800 
-                        bg-gray-600
+                        bg-orange-950
                         text-sm text-gray-300 font-mono leading-4" 
                         rows="10"
                         readonly
