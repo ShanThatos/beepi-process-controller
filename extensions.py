@@ -15,5 +15,5 @@ RESTART_CMD: str = utils.assert_not_none(ENV.get("RESTART_CMD"))
 
 TEMPLATES_AUTO_RELOAD: bool = utils.assert_not_none(ENV.get("TEMPLATES_AUTO_RELOAD", "no")) == "yes"
 
-RUN_CLOUDFARED: bool = utils.assert_not_none(ENV.get("RUN_CLOUDFARED", "no")) == "yes"
-CLOUDFARED_DOMAIN: str = utils.assert_not_none(ENV.get("CLOUDFARED_DOMAIN", "X"))
+RUN_CLOUDFLARED: bool = utils.assert_not_none(ENV.get("RUN_CLOUDFLARED", "no")) == "yes"
+CLOUDFLARED_DOMAIN: str = utils.assert_not_none(ENV.get("CLOUDFLARED_DOMAIN", "X"))

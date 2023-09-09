@@ -128,8 +128,8 @@ CF_PROCESS: Optional[Popen] = None
 
 def start_server():
     global CF_PROCESS
-    if ext.RUN_CLOUDFARED:
-        CF_PROCESS = Popen(f"cloudflared tunnel run --url 0.0.0.0:8000 {ext.CLOUDFARED_DOMAIN}", shell=True, start_new_session=True)
+    if ext.RUN_CLOUDFLARED:
+        CF_PROCESS = Popen(f"cloudflared tunnel run --url 0.0.0.0:8000 {ext.CLOUDFLARED_DOMAIN}", shell=True, start_new_session=True)
     atexit.register(lambda: manage.fully_kill_process(CF_PROCESS))
     
     # app.run("0.0.0.0", 8000, debug=False, load_dotenv=False, use_reloader=False)
