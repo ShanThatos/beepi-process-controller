@@ -1,11 +1,14 @@
 import atexit
 import json
 import os
+import subprocess
 from functools import cache, wraps
+from pathlib import Path
 from subprocess import Popen
 from typing import Callable, Dict, Optional
 
-from flask import Flask, Response, abort, make_response, redirect, render_template, request, session
+from flask import (Flask, Response, abort, make_response, redirect,
+                   render_template, request, session)
 from pydantic import ValidationError
 from waitress import serve
 
@@ -129,7 +132,11 @@ CF_PROCESS: Optional[Popen] = None
 def start_server():
     global CF_PROCESS
     if ext.RUN_CLOUDFLARED:
-        CF_PROCESS = Popen(f"cloudflared tunnel run --url 0.0.0.0:8000 {ext.CLOUDFLARED_DOMAIN}", shell=True, start_new_session=True)
+        cf_domain = ext.CLOUDFLARED_DOMAIN
+        if not Path("./cf_creds.json").exists():
+            print("Retrieving cloudflare credentials...")
+            subprocess.run(f"cloudflared tunnel token --cred-file cf_creds.json {cf_domain}", shell=True)
+        CF_PROCESS = Popen(f"cloudflared tunnel run --cred-file cf_creds.json --url 0.0.0.0:8000 {cf_domain}", shell=True, start_new_session=True)
     atexit.register(lambda: manage.fully_kill_process(CF_PROCESS))
     
     # app.run("0.0.0.0", 8000, debug=False, load_dotenv=False, use_reloader=False)

@@ -3,4 +3,5 @@
 /.env
 /temp/
 __pycache__/
-poetry.lock
+/poetry.lock
+/cf_creds.json
